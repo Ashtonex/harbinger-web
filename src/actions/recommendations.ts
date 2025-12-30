@@ -1,3 +1,4 @@
+'use server'
 import { createClient } from "@/utils/supabase/server"
 
 export async function getSuggestions() {
@@ -26,11 +27,12 @@ export async function getSuggestions() {
     .eq('action_type', 'bible_read')
     .order('created_at', { ascending: false })
     .limit(1)
-    .single()
+    .maybeSingle() // changed from .single() to prevent errors if no rows exist
 
   // 2. Simple logic: If they read Psalms, suggest Proverbs. Otherwise, suggest Daily Devotion.
   // (You can make this smarter later)
-  if (lastActivity?.details?.book === 'Psalms') {
+  // We use optional chaining ?. just in case details is null
+  if (lastActivity?.details && (lastActivity.details as any).book === 'Psalms') {
     return [{
       title: "Continue with Proverbs",
       description: "Wisdom often follows worship. Read Proverbs 1.",
