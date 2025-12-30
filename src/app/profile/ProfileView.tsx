@@ -61,7 +61,8 @@ export default function ProfileView({ user, profile }: any) {
 
   return (
     <Container size="md" py="xl">
-      <Paper radius="md" withBorder overflow="hidden" shadow="sm">
+      {/* FIXED: Moved overflow="hidden" to style prop */}
+      <Paper radius="md" withBorder shadow="sm" style={{ overflow: "hidden" }}>
 
         <div style={{
           height: 140,
