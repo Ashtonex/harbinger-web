@@ -19,9 +19,9 @@ function getAge(dateString: any) {
 
 export default async function ProfilePage() {
   const supabase = await createClient()
-  
+   
   const { data: { user } } = await supabase.auth.getUser()
-  
+   
   const { data: profile } = await supabase
     .from("profiles")
     .select("*")
@@ -57,7 +57,9 @@ export default async function ProfilePage() {
 
   return (
     <Container size="md" py="xl">
-      <Paper radius="md" withBorder overflow="hidden" shadow="sm">
+      {/* FIXED: Moved overflow="hidden" to style prop */}
+      <Paper radius="md" withBorder shadow="sm" style={{ overflow: "hidden" }}>
+        
         {/* COVER BANNER */}
         <div style={{ height: 140, background: 'linear-gradient(135deg, var(--mantine-color-blue-6) 0%, var(--mantine-color-cyan-6) 100%)' }}></div>
 
@@ -125,7 +127,7 @@ export default async function ProfilePage() {
                 <Divider my="sm" />
 
                 <Text tt="uppercase" fw={700} c="dimmed" size="xs" ls="md">Contact</Text>
-                 <Group gap="sm">
+                  <Group gap="sm">
                   <ThemeIcon variant="light" color="blue" size="md"><IconPhone size={16} /></ThemeIcon>
                   <Text size="sm">{profile.phone || "No phone"}</Text>
                 </Group>
@@ -134,7 +136,7 @@ export default async function ProfilePage() {
 
             {/* BIO */}
             <Grid.Col span={{ base: 12, md: 8 }}>
-               <Stack gap="lg">
+                <Stack gap="lg">
                   <div>
                     <Title order={4} mb="xs">About Me</Title>
                     <Text c={profile.bio ? "text" : "dimmed"} style={{ lineHeight: 1.6 }}>
@@ -145,12 +147,12 @@ export default async function ProfilePage() {
                   <div>
                     <Title order={4} mb="xs">Spiritual Identity</Title>
                     <Group gap="xs">
-                       <Badge size="lg" variant="dot" color="blue">Member</Badge>
-                       <Badge size="lg" variant="outline" color="grape">Choir</Badge>
-                       <Badge size="lg" variant="outline" color="orange">Volunteer</Badge>
+                        <Badge size="lg" variant="dot" color="blue">Member</Badge>
+                        <Badge size="lg" variant="outline" color="grape">Choir</Badge>
+                        <Badge size="lg" variant="outline" color="orange">Volunteer</Badge>
                     </Group>
                   </div>
-               </Stack>
+                </Stack>
             </Grid.Col>
           </Grid>
         </div>
