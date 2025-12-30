@@ -1,3 +1,4 @@
+'use server'
 import { createClient } from "@/utils/supabase/server"
 
 export async function getRecentActivity() {
@@ -26,9 +27,9 @@ export async function getWeeklyStats() {
   // FIXED: Return an empty ARRAY [], not an object, if no user
   if (!user) return []
 
-  // IMPORTANT: The chart expects an ARRAY of data points, not a summary object.
-  // For now, we return mock daily data to fix the "slice" error.
-  // Later, you can replace this with a real SQL aggregation query.
+  // IMPORTANT: The chart expects an ARRAY of data points.
+  // Returning mock data allows the UI to render without crashing.
+  // TODO: Replace this with a real SQL aggregation query in Phase 10.
   return [
     { day: 'Mon', notes: 2, prayers: 1 },
     { day: 'Tue', notes: 4, prayers: 2 },
