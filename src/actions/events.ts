@@ -1,7 +1,8 @@
+'use server'
 import { createClient } from "@/utils/supabase/server"
 
 export async function getNextEvent() {
-  // FIXED: Added 'await' here because createClient is now asynchronous
+  // FIXED: Added 'await' here
   const supabase = await createClient()
 
   const { data } = await supabase
@@ -10,7 +11,7 @@ export async function getNextEvent() {
     .gte('start_time', new Date().toISOString())
     .order('start_time', { ascending: true })
     .limit(1)
-    .single()
+    .maybeSingle() // Safe: returns null if no event is found, instead of crashing
 
   return data
 }
