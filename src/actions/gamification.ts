@@ -1,7 +1,7 @@
+'use server'
 import { createClient } from "@/utils/supabase/server"
 
 export async function getProfileCompleteness() {
-  // FIXED: Added 'await' here
   const supabase = await createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
@@ -10,7 +10,8 @@ export async function getProfileCompleteness() {
   // 1. Fetch Profile & Counts in parallel
   const [profileResponse, notesCount, prayersCount] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', user.id).single(),
-    supabase.from('notes').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+    // FIXED: Changed 'notes' to 'sermon_notes' to match your DB schema
+    supabase.from('sermon_notes').select('id', { count: 'exact', head: true }).eq('user_id', user.id), 
     supabase.from('prayers').select('id', { count: 'exact', head: true }).eq('user_id', user.id)
   ])
 
@@ -23,16 +24,17 @@ export async function getProfileCompleteness() {
   const missing: string[] = []
 
   // Basic Profile (40%)
-  if (profile.first_name && profile.last_name) score += 10
+  // Using optional chaining (?) in case profile fields are null
+  if (profile?.first_name && profile?.last_name) score += 10
   else missing.push("Add Name")
   
-  if (profile.avatar_url) score += 10
+  if (profile?.avatar_url) score += 10
   else missing.push("Upload Photo")
 
-  if (profile.bio) score += 10
+  if (profile?.bio) score += 10
   else missing.push("Write Bio")
 
-  if (profile.city) score += 10
+  if (profile?.city) score += 10
   else missing.push("Add Location")
 
   // Activity (60%)
@@ -46,7 +48,6 @@ export async function getProfileCompleteness() {
 }
 
 export async function getRecentActivity() {
-  // FIXED: Added 'await' here too
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
@@ -62,7 +63,6 @@ export async function getRecentActivity() {
 }
 
 export async function getUserBadges() {
-  // FIXED: Added 'await' here too
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
