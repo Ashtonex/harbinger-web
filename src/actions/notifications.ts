@@ -3,7 +3,9 @@ import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function getNotifications() {
-  const supabase = createClient()
+  // FIX: Added 'await' here
+  const supabase = await createClient()
+  
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
 
@@ -19,7 +21,8 @@ export async function getNotifications() {
 }
 
 export async function markNotificationRead(notificationId: string) {
-  const supabase = createClient()
+  // FIX: Added 'await' here
+  const supabase = await createClient()
   
   await supabase
     .from('notifications')
