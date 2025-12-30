@@ -7,7 +7,7 @@ import {
 } from "@mantine/core";
 import { IconSearch, IconArrowRight, IconBook, IconPray } from "@tabler/icons-react";
 import Link from "next/link";
-import { supabase } from "@/utils/supabase";
+import { supabase } from "@/utils/supabase/client"; // Ensure correct import path
 import { useDebouncedCallback } from "@mantine/hooks";
 
 export default function SearchPage() {
@@ -86,15 +86,16 @@ export default function SearchPage() {
                    color={item.type === 'Bible' ? 'blue' : 'orange'}
                    leftSection={item.type === 'Bible' ? <IconBook size={12}/> : <IconPray size={12}/>}
                  >
-                    {item.type === 'Bible' 
-                      ? `${item.data.books.name} ${item.data.chapter}:${item.data.verse}` 
-                      : `Prayer Request`}
+                   {item.type === 'Bible' 
+                     ? `${item.data.books.name} ${item.data.chapter}:${item.data.verse}` 
+                     : `Prayer Request`}
                  </Badge>
                  <IconArrowRight size={14} color="gray" />
               </Group>
 
               <Text size="md" lh={1.6} component="div" c="dimmed">
-                <Highlight highlight={query} highlightColor="yellow">
+                {/* FIX: Changed 'highlightColor' to 'color' */}
+                <Highlight highlight={query} color="yellow">
                    {item.type === 'Bible' ? item.data.text : item.data.content}
                 </Highlight>
               </Text>

@@ -1,13 +1,16 @@
 import "@mantine/core/styles.css";
-import "@mantine/notifications/styles.css"; // 1. Import Notification Styles
+import "@mantine/notifications/styles.css"; 
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
-import { Notifications } from "@mantine/notifications"; // 2. Import Notifications System
+import { Notifications } from "@mantine/notifications"; 
 import { AuthProvider } from "@/context/AuthProvider";
 import { AppNavbar } from "@/components/AppNavbar";
 import { AppFooter } from "@/components/AppFooter"; 
 import { SmartHeader } from "@/components/ui/smart-header"; 
-import { LiveSyncProvider } from "@/context/live-sync-context"; // 3. Import Live Sync
-import { Analytics } from "@vercel/analytics/react"; // 4. Import Analytics
+import { LiveSyncProvider } from "@/context/live-sync-context"; 
+
+// 1. Import BOTH Vercel tools
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata = {
   title: "Harbinger",
@@ -26,11 +29,10 @@ export default function RootLayout({
       </head>
       <body>
         <MantineProvider>
-          {/* 5. Enable Notifications (Must be inside MantineProvider) */}
+          {/* 2. Notifications System */}
           <Notifications position="top-right" zIndex={1000} />
           
           <AuthProvider>
-            {/* 6. Wrap App with LiveSync so it listens everywhere */}
             <LiveSyncProvider>
               <AppNavbar>
                  <div style={{ minHeight: '80vh' }}>
@@ -44,8 +46,9 @@ export default function RootLayout({
           </AuthProvider>
         </MantineProvider>
         
-        {/* 7. Add Analytics Component */}
+        {/* 3. Add Vercel Monitoring Components */}
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
