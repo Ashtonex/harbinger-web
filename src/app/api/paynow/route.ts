@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
+// @ts-ignore
 import { Paynow } from "paynow";
-import { supabase } from "@/utils/supabase"; // Ensure this imports your client
-// NOTE: For backend API routes, it is safer to use a Service Role client
-// if you have RLS enabled, but for now standard client is okay if RLS allows inserts.
-// Ideally, use createClient from @supabase/supabase-js with SERVICE_ROLE_KEY for admin writes.
+import { createClient } from "@supabase/supabase-js"; 
+
+// Use the Service Role Key for backend writes to bypass RLS
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+);
 
 export async function POST(request: Request) {
   try {
@@ -13,9 +17,7 @@ export async function POST(request: Request) {
     const reference = `${category}-${Date.now()}`;
 
     // 2. LOG TO DATABASE FIRST (Status: Initiated)
-    // We use a direct Supabase call here.
-    // If you have strict RLS, you might need the Service Key here.
-    const { error: dbError } = await supabase
+    const { error: dbError } = await supabaseAdmin
       .from("transactions")
       .insert({
         reference,
@@ -36,8 +38,10 @@ export async function POST(request: Request) {
       process.env.PAYNOW_INTEGRATION_KEY
     );
 
-    paynow.resultUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/paynow/update`;
-    paynow.returnUrl = `${process.env.NEXT_PUBLIC_APP_URL}/give/success`;
+    // Ensure these URLs are set in your environment variables
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    paynow.resultUrl = `${baseUrl}/api/paynow/update`;
+    paynow.returnUrl = `${baseUrl}/give/success`;
 
     const payment = paynow.createPayment(reference, email);
     payment.add(category, amount);
