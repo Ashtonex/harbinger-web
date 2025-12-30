@@ -3,7 +3,9 @@ import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function createBookmark(collectionId: string, resourceId: string, resourceType: string) {
-  const supabase = createClient()
+  // FIX: Added 'await' here
+  const supabase = await createClient()
+  
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return
 
@@ -18,7 +20,9 @@ export async function createBookmark(collectionId: string, resourceId: string, r
 }
 
 export async function getUserCollections() {
-  const supabase = createClient()
+  // FIX: Added 'await' here
+  const supabase = await createClient()
+
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
 
@@ -27,19 +31,21 @@ export async function getUserCollections() {
     .from('collections')
     .select('*')
     .eq('user_id', user.id)
-  
+   
   return data || []
 }
 
 export async function createCollection(name: string) {
-    const supabase = createClient()
+    // FIX: Added 'await' here
+    const supabase = await createClient()
+
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
-  
+   
     await supabase.from('collections').insert({
       user_id: user.id,
       name: name
     })
-    
+     
     revalidatePath('/dashboard')
 }
