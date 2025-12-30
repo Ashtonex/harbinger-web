@@ -2,7 +2,9 @@
 import { createClient } from "@/utils/supabase/server"
 
 export async function getTaxReportData() {
-  const supabase = createClient()
+  // FIX: Added 'await' before createClient()
+  const supabase = await createClient()
+  
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) return []
