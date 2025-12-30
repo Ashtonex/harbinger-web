@@ -2,7 +2,9 @@
 import { createClient } from '@/utils/supabase/server'
 
 export async function getDraftNotes() {
-  const supabase = createClient()
+  // FIX: Added 'await' here
+  const supabase = await createClient()
+  
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
 
