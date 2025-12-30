@@ -1,10 +1,13 @@
 import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css"; // 1. Import Notification Styles
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
+import { Notifications } from "@mantine/notifications"; // 2. Import Notifications System
 import { AuthProvider } from "@/context/AuthProvider";
 import { AppNavbar } from "@/components/AppNavbar";
 import { AppFooter } from "@/components/AppFooter"; 
-// 1. IMPORT THE SMART HEADER
 import { SmartHeader } from "@/components/ui/smart-header"; 
+import { LiveSyncProvider } from "@/context/live-sync-context"; // 3. Import Live Sync
+import { Analytics } from "@vercel/analytics/react"; // 4. Import Analytics
 
 export const metadata = {
   title: "Harbinger",
@@ -23,21 +26,26 @@ export default function RootLayout({
       </head>
       <body>
         <MantineProvider>
+          {/* 5. Enable Notifications (Must be inside MantineProvider) */}
+          <Notifications position="top-right" zIndex={1000} />
+          
           <AuthProvider>
-            <AppNavbar>
-               {/* 2. Main Content Wrapper */}
-               <div style={{ minHeight: '80vh' }}>
+            {/* 6. Wrap App with LiveSync so it listens everywhere */}
+            <LiveSyncProvider>
+              <AppNavbar>
+                 <div style={{ minHeight: '80vh' }}>
+                   <SmartHeader />
+                   {children}
+                 </div>
                  
-                 {/* 3. PLACE IT HERE: It will automatically hide itself on Dashboard/Login */}
-                 <SmartHeader />
-                 
-                 {children}
-               </div>
-               
-               <AppFooter /> 
-            </AppNavbar>
+                 <AppFooter /> 
+              </AppNavbar>
+            </LiveSyncProvider>
           </AuthProvider>
         </MantineProvider>
+        
+        {/* 7. Add Analytics Component */}
+        <Analytics />
       </body>
     </html>
   );

@@ -2,7 +2,6 @@ import { createClient } from "@/utils/supabase/server"
 import { Container, Paper, Avatar, Title, Text, Group, Button, Grid, Badge, Stack, ThemeIcon, Divider, Center } from "@mantine/core"
 import { IconPencil, IconMapPin, IconCake, IconPhone, IconUser, IconHeart, IconPlus } from "@tabler/icons-react"
 import Link from "next/link"
-// IMPORT THE LOGOUT BUTTON
 import { LogoutButton } from "@/components/auth/logout-button"
 
 function getAge(dateString: any) {
@@ -44,7 +43,6 @@ export default async function ProfilePage() {
               </Button>
             </Link>
             
-            {/* Added Logout here so users aren't trapped */}
             <LogoutButton />
           </Stack>
         </Center>
@@ -57,7 +55,7 @@ export default async function ProfilePage() {
 
   return (
     <Container size="md" py="xl">
-      {/* FIXED: Moved overflow="hidden" to style prop */}
+      {/* FIXED: Overflow in style prop */}
       <Paper radius="md" withBorder shadow="sm" style={{ overflow: "hidden" }}>
         
         {/* COVER BANNER */}
@@ -89,7 +87,6 @@ export default async function ProfilePage() {
                 </Button>
               </Link>
 
-              {/* RESTORED LOGOUT BUTTON */}
               <LogoutButton />
             </Group>
           </Group>
@@ -98,7 +95,8 @@ export default async function ProfilePage() {
             {/* DETAILS */}
             <Grid.Col span={{ base: 12, md: 4 }}>
               <Stack gap="md">
-                <Text tt="uppercase" fw={700} c="dimmed" size="xs" ls="md">Details</Text>
+                {/* FIXED: replaced ls="md" with style */}
+                <Text tt="uppercase" fw={700} c="dimmed" size="xs" style={{ letterSpacing: '1px' }}>Details</Text>
                 
                 <Group gap="sm">
                   <ThemeIcon variant="light" color="gray" size="md"><IconUser size={16} /></ThemeIcon>
@@ -126,7 +124,8 @@ export default async function ProfilePage() {
 
                 <Divider my="sm" />
 
-                <Text tt="uppercase" fw={700} c="dimmed" size="xs" ls="md">Contact</Text>
+                {/* FIXED: replaced ls="md" with style */}
+                <Text tt="uppercase" fw={700} c="dimmed" size="xs" style={{ letterSpacing: '1px' }}>Contact</Text>
                   <Group gap="sm">
                   <ThemeIcon variant="light" color="blue" size="md"><IconPhone size={16} /></ThemeIcon>
                   <Text size="sm">{profile.phone || "No phone"}</Text>

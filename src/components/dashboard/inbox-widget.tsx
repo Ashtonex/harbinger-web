@@ -1,24 +1,26 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Bell, Check, Heart, MessageCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { markNotificationRead } from "@/actions/notifications" // We will make this next
+import { 
+  Card, Text, Group, Tabs, Button, Stack, ThemeIcon, 
+  Badge, Paper, ScrollArea, Center 
+} from "@mantine/core"
+import { IconBell, IconCheck, IconHeart, IconMessageCircle } from "@tabler/icons-react"
+import { markNotificationRead } from "@/actions/notifications"
 
-// Mock type - replace with your Supabase generated type
+// Mock type - replace with your Supabase generated type if available
 type Notification = {
   id: string
-  type: 'amen' | 'announcement' | 'message'
+  type: 'amen' | 'announcement' | 'message' | string
   title: string
   message: string
   is_read: boolean
   created_at: string
 }
 
-export function InboxWidget({ initialData }: { initialData: Notification[] }) {
-  const [notifications, setNotifications] = useState(initialData)
+export function InboxWidget({ initialData = [] }: { initialData?: Notification[] }) {
+  const [notifications, setNotifications] = useState<Notification[]>(initialData)
+  const [activeTab, setActiveTab] = useState<string | null>('all')
 
   const handleDismiss = async (id: string) => {
     // 1. Optimistic Update (Remove from UI immediately)
@@ -36,84 +38,104 @@ export function InboxWidget({ initialData }: { initialData: Notification[] }) {
   // Icon Helper
   const getIcon = (type: string) => {
     switch (type) {
-      case 'amen': return <Heart className="h-4 w-4 text-rose-500" />
-      case 'announcement': return <Bell className="h-4 w-4 text-amber-500" />
-      default: return <MessageCircle className="h-4 w-4 text-blue-500" />
+      case 'amen': return <IconHeart size={16} />;
+      case 'announcement': return <IconBell size={16} />;
+      default: return <IconMessageCircle size={16} />;
     }
   }
 
-  return (
-    <Card className="col-span-1 md:col-span-2 h-full">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-bold">Inbox</CardTitle>
-          <span className="text-xs text-muted-foreground">{notifications.length} Unread</span>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="all" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-4">
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="amen">Prayers</TabsTrigger>
-            <TabsTrigger value="announcement">Updates</TabsTrigger>
-          </TabsList>
+  // Color Helper
+  const getColor = (type: string) => {
+    switch (type) {
+      case 'amen': return 'pink';
+      case 'announcement': return 'orange';
+      default: return 'blue';
+    }
+  }
 
-          {/* Render List Logic */}
-          {["all", "amen", "announcement"].map((tab) => (
-            <TabsContent key={tab} value={tab} className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
-              {notifications
-                .filter((n) => tab === "all" || n.type === tab)
-                .map((n) => (
-                <div key={n.id} className="flex gap-4 items-start p-3 rounded-lg border bg-card/50 hover:bg-accent transition-colors">
-                  <div className="mt-1 bg-background p-2 rounded-full border shadow-sm">
-                    {getIcon(n.type)}
-                  </div>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none">{n.title}</p>
-                    <p className="text-xs text-muted-foreground line-clamp-2">{n.message}</p>
-                    
-                    {/* INLINE ACTIONS */}
-                    <div className="flex gap-2 mt-2">
-                      {n.type === 'amen' && (
-                        <Button 
-                          size="xs" 
-                          variant="outline" 
-                          className="h-7 text-xs"
-                          onClick={() => handleAction(n.id, 'amen')}
-                        >
-                          Receive Prayer
-                        </Button>
-                      )}
-                      <Button 
-                        size="xs" 
-                        variant="ghost" 
-                        className="h-7 text-xs hover:text-red-500"
-                        onClick={() => handleDismiss(n.id)}
-                      >
-                        Dismiss
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <span className="text-[10px] text-muted-foreground">
-                       {/* You can use a library like 'date-fns' here */}
-                       2m ago 
-                    </span>
-                    {!n.is_read && <div className="h-2 w-2 rounded-full bg-blue-500" />}
-                  </div>
-                </div>
-              ))}
-              
-              {notifications.length === 0 && (
-                 <div className="text-center py-8 text-muted-foreground">
-                    <Check className="h-8 w-8 mx-auto mb-2 opacity-20" />
-                    <p className="text-sm">You are all caught up!</p>
-                 </div>
-              )}
-            </TabsContent>
-          ))}
-        </Tabs>
-      </CardContent>
+  const unreadCount = notifications.length
+
+  return (
+    <Card shadow="sm" radius="md" withBorder padding="lg" h="100%">
+      <Group justify="space-between" mb="md">
+        <Group gap="xs">
+          <Text fw={700} size="lg">Inbox</Text>
+          {unreadCount > 0 && (
+            <Badge color="red" size="sm" variant="filled">{unreadCount} Unread</Badge>
+          )}
+        </Group>
+      </Group>
+
+      <Tabs value={activeTab} onChange={setActiveTab} variant="pills" radius="md">
+        <Tabs.List mb="md" grow>
+          <Tabs.Tab value="all">All</Tabs.Tab>
+          <Tabs.Tab value="amen">Prayers</Tabs.Tab>
+          <Tabs.Tab value="announcement">Updates</Tabs.Tab>
+        </Tabs.List>
+
+        {["all", "amen", "announcement"].map((tab) => (
+          <Tabs.Panel key={tab} value={tab}>
+            <ScrollArea h={300} type="auto" offsetScrollbars>
+                <Stack gap="sm">
+                  {notifications
+                    .filter((n) => tab === "all" || n.type === tab)
+                    .map((n) => (
+                    <Paper key={n.id} p="sm" withBorder bg="var(--mantine-color-body)">
+                      <Group justify="space-between" align="start" wrap="nowrap">
+                        <Group align="start" wrap="nowrap" style={{ flex: 1 }}>
+                          <ThemeIcon size="lg" radius="xl" variant="light" color={getColor(n.type)}>
+                            {getIcon(n.type)}
+                          </ThemeIcon>
+                          
+                          <div style={{ flex: 1 }}>
+                            <Text size="sm" fw={600} lh={1.2}>{n.title}</Text>
+                            <Text size="xs" c="dimmed" lineClamp={2} mt={2}>{n.message}</Text>
+                            
+                            {/* INLINE ACTIONS */}
+                            <Group mt="xs" gap="xs">
+                              {n.type === 'amen' && (
+                                <Button 
+                                  size="compact-xs" 
+                                  variant="light" 
+                                  color="pink"
+                                  onClick={() => handleAction(n.id, 'amen')}
+                                >
+                                  Receive Prayer
+                                </Button>
+                              )}
+                              <Button 
+                                size="compact-xs" 
+                                variant="subtle" 
+                                color="gray"
+                                onClick={() => handleDismiss(n.id)}
+                              >
+                                Dismiss
+                              </Button>
+                            </Group>
+                          </div>
+                        </Group>
+
+                        <Stack align="flex-end" gap={4}>
+                           <Text size="xs" c="dimmed" style={{ fontSize: 10 }}>2m ago</Text>
+                           {!n.is_read && <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--mantine-color-blue-5)' }} />}
+                        </Stack>
+                      </Group>
+                    </Paper>
+                  ))}
+                  
+                  {notifications.filter((n) => tab === "all" || n.type === tab).length === 0 && (
+                     <Center py={40}>
+                       <Stack align="center" gap="xs">
+                         <IconCheck size={32} style={{ opacity: 0.2 }} />
+                         <Text c="dimmed" size="sm">You are all caught up!</Text>
+                       </Stack>
+                     </Center>
+                  )}
+                </Stack>
+            </ScrollArea>
+          </Tabs.Panel>
+        ))}
+      </Tabs>
     </Card>
   )
 }

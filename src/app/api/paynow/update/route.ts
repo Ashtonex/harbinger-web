@@ -1,12 +1,22 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
+// FIX: Use fallback strings so the build doesn't crash if keys are missing
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key';
+
 // We need the SERVICE ROLE KEY to update the database securely
 // bypassing any RLS rules (since Paynow isn't a logged-in user)
 const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!, 
-  { auth: { persistSession: false } }
+  supabaseUrl,
+  serviceRoleKey, 
+  { 
+    auth: { 
+      persistSession: false, // Important: Don't persist sessions on the server
+      autoRefreshToken: false,
+      detectSessionInUrl: false
+    } 
+  }
 );
 
 export async function POST(request: Request) {

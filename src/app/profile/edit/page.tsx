@@ -2,20 +2,22 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/utils/supabase/client"
+// FIXED: Import 'supabase' directly (do not import createClient)
+import { supabase } from "@/utils/supabase/client"
 import { Container, Title, TextInput, Button, Group, Stack, Paper, Select, Textarea, SimpleGrid, Avatar, FileButton, Text, Loader, Center } from "@mantine/core"
 import { IconDeviceFloppy, IconUpload } from "@tabler/icons-react"
+// If this component doesn't exist, we can just use a standard Button
 import { BackButton } from "@/components/ui/back-button"
 
 export default function EditProfilePage() {
-  const supabase = createClient()
+  // REMOVED: const supabase = createClient()
   const router = useRouter()
-  
+   
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [user, setUser] = useState<any>(null)
-  
+   
   const [formData, setFormData] = useState({
     first_name: "", last_name: "", gender: "", marital_status: "",
     birthday: "", phone: "", address: "", city: "", country: "",
@@ -60,7 +62,7 @@ export default function EditProfilePage() {
     return () => {
       subscription.unsubscribe()
     }
-  }, [])
+  }, [router])
 
   const handleUpload = async (file: File | null) => {
     if (!file || !user) return;

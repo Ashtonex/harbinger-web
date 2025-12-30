@@ -1,6 +1,6 @@
 "use client"
 
-import { createClient } from "@/utils/supabase/client"
+import { supabase } from "@/utils/supabase/client" // Import the instance directly
 import { Button } from "@mantine/core"
 import { IconLogout } from "@tabler/icons-react"
 import { useRouter } from "next/navigation"
@@ -8,7 +8,7 @@ import { useState } from "react"
 
 export function LogoutButton() {
   const router = useRouter()
-  const supabase = createClient()
+  // Removed: const supabase = createClient() -- we use the imported instance
   const [loading, setLoading] = useState(false)
 
   const handleLogout = async () => {

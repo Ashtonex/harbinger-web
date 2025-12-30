@@ -1,22 +1,65 @@
-import { supabase } from "@/utils/supabase";
-import { Container, Title, SimpleGrid, Card, Text, Group, Badge, ThemeIcon } from "@mantine/core";
+"use client"; // Needs to be client-side to listen to context
+
+import { useEffect, useState } from "react";
+import { Container, Title, SimpleGrid, Card, Text, Group, Badge, ThemeIcon, Button, Alert } from "@mantine/core";
 import Link from "next/link";
-import { IconBook } from "@tabler/icons-react";
+import { IconBook, IconBroadcast } from "@tabler/icons-react";
+import { supabase } from "@/utils/supabase/client"; // Use client import
+import { useLiveSync } from "@/context/live-sync-context"; // Import the Live Context
 
-// This page runs on the server (Server Component)
-export default async function BibleLibrary() {
-  // 1. Fetch all books sorted by their order
-  const { data: books } = await supabase
-    .from("books")
-    .select("*")
-    .order("order_index", { ascending: true });
+export default function BibleLibrary() {
+  const { isLive, currentVerse } = useLiveSync(); // <--- Connect to Live Signal
+  const [books, setBooks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (!books) return <Container><Text>Loading Library...</Text></Container>;
+  // Fetch books on the client side
+  useEffect(() => {
+    const fetchBooks = async () => {
+      const { data } = await supabase
+        .from("books")
+        .select("*")
+        .order("order_index", { ascending: true });
+      
+      if (data) setBooks(data);
+      setLoading(false);
+    };
+
+    fetchBooks();
+  }, []);
+
+  if (loading) return <Container><Text>Loading Library...</Text></Container>;
 
   return (
     <Container size="lg" py="xl">
-      <Title ta="center" mb={40}>The Holy Bible</Title>
+      <Title ta="center" mb={20}>The Holy Bible</Title>
       
+      {/* 🔴 LIVE SERVICE ALERT (Only shows when Bishop is active) */}
+      {isLive && currentVerse && (
+        <Alert 
+            variant="filled" 
+            color="red" 
+            title="Live Service in Session" 
+            icon={<IconBroadcast />}
+            mb={30}
+        >
+            <Group justify="space-between" align="center">
+                <Text size="sm" c="white">
+                    The pulpit is currently at <strong>{currentVerse}</strong>.
+                </Text>
+                <Button 
+                    variant="white" 
+                    color="red" 
+                    size="xs"
+                    component={Link}
+                    // Extract Book and Chapter for the link (Simple parser)
+                    href={`/bible/${currentVerse.split(' ')[0]}/${currentVerse.split(':')[0].split(' ').pop()}`}
+                >
+                    Join Live Reading
+                </Button>
+            </Group>
+        </Alert>
+      )}
+
       {/* OLD TESTAMENT */}
       <Group mb="md">
         <Badge size="lg" color="blue">Old Testament</Badge>

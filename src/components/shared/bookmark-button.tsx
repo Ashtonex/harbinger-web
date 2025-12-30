@@ -1,52 +1,133 @@
 "use client"
 
 import { useState } from "react"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Button } from "@/components/ui/button"
-import { Bookmark, Plus } from "lucide-react"
-import { createBookmark } from "@/actions/bookmarks" // Server Action
+import { 
+  Popover, Button, Text, Stack, TextInput, ActionIcon, 
+  Group, Divider, ScrollArea, Loader 
+} from "@mantine/core"
+import { IconBookmark, IconPlus, IconCheck } from "@tabler/icons-react"
+import { createBookmark, createCollection } from "@/actions/bookmarks" 
 
-export function BookmarkButton({ resourceId, resourceType }: { resourceId: string, resourceType: string }) {
-  const [isOpen, setIsOpen] = useState(false)
-  
-  // Ideally, fetch these from DB. Mocked for now.
-  const collections = [
-    { id: '1', name: 'Favorites' },
-    { id: '2', name: 'Study of John' }
-  ]
+interface BookmarkButtonProps {
+  resourceId: string
+  resourceType: string
+  collections?: any[] // Optional list of existing collections
+}
+
+export function BookmarkButton({ resourceId, resourceType, collections = [] }: BookmarkButtonProps) {
+  const [opened, setOpened] = useState(false)
+  const [newCollectionName, setNewCollectionName] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [saved, setSaved] = useState(false)
 
   const handleSave = async (collectionId: string) => {
-    await createBookmark(collectionId, resourceId, resourceType)
-    setIsOpen(false)
-    // Add toast notification here
+    setLoading(true)
+    try {
+        await createBookmark(collectionId, resourceId, resourceType)
+        setSaved(true)
+        // Close popover after a brief success delay
+        setTimeout(() => {
+            setSaved(false)
+            setOpened(false)
+        }, 1000)
+    } catch (e) {
+        console.error("Failed to bookmark", e)
+    } finally {
+        setLoading(false)
+    }
+  }
+
+  const handleCreateAndSave = async () => {
+    if (!newCollectionName) return
+    setLoading(true)
+    try {
+        // Create collection (assuming logic handles creation)
+        await createCollection(newCollectionName)
+        setNewCollectionName("")
+        setOpened(false)
+    } catch (e) {
+        console.error("Failed to create collection", e)
+    } finally {
+        setLoading(false)
+    }
   }
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
-          <Bookmark className="h-4 w-4" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-56 p-2" align="end">
-        <p className="text-xs font-semibold px-2 mb-2 text-muted-foreground">Save to...</p>
-        <div className="space-y-1">
-          {collections.map((col) => (
-            <Button 
-              key={col.id} 
-              variant="ghost" 
-              className="w-full justify-start h-8 text-sm"
-              onClick={() => handleSave(col.id)}
-            >
-              {col.name}
-            </Button>
-          ))}
-          <div className="h-px bg-border my-1" />
-          <Button variant="ghost" className="w-full justify-start h-8 text-sm text-blue-500">
-            <Plus className="mr-2 h-3 w-3" /> New Collection
-          </Button>
-        </div>
-      </PopoverContent>
+    <Popover 
+      width={280} 
+      position="bottom-end" 
+      withArrow 
+      shadow="md" 
+      opened={opened} 
+      onChange={setOpened}
+      trapFocus
+    >
+      <Popover.Target>
+        <ActionIcon 
+          variant={saved ? "filled" : "subtle"} 
+          color={saved ? "green" : "gray"} 
+          onClick={() => setOpened((o) => !o)}
+          loading={loading}
+        >
+           {saved ? <IconCheck size={18} /> : <IconBookmark size={18} />}
+        </ActionIcon>
+      </Popover.Target>
+
+      <Popover.Dropdown>
+        <Stack gap="sm">
+            <Text size="sm" fw={700}>Save to Collection</Text>
+
+            {/* LIST EXISTING COLLECTIONS */}
+            {/* FIXED: 'mah' is the correct prop for max-height in Mantine v7 */}
+            <ScrollArea.Autosize mah={200} type="auto">
+                {collections.length > 0 ? (
+                    <Stack gap={4}>
+                        {collections.map((col: any) => (
+                            <Button
+                                key={col.id}
+                                variant="subtle"
+                                justify="start"
+                                size="xs"
+                                color="gray"
+                                onClick={() => handleSave(col.id)}
+                                disabled={loading}
+                            >
+                                {col.name}
+                            </Button>
+                        ))}
+                    </Stack>
+                ) : (
+                    <Text size="xs" c="dimmed" ta="center" py="xs">
+                        No collections found.
+                    </Text>
+                )}
+            </ScrollArea.Autosize>
+
+            <Divider />
+
+            {/* CREATE NEW COLLECTION */}
+            <Group gap={5} align="flex-end">
+                <TextInput
+                    placeholder="New Collection..."
+                    size="xs"
+                    label="Create New"
+                    value={newCollectionName}
+                    onChange={(e) => setNewCollectionName(e.target.value)}
+                    style={{ flex: 1 }}
+                />
+                <ActionIcon 
+                    variant="filled" 
+                    color="blue" 
+                    size="md"
+                    mb={1} 
+                    onClick={handleCreateAndSave} 
+                    disabled={!newCollectionName || loading}
+                >
+                    <IconPlus size={16} />
+                </ActionIcon>
+            </Group>
+        </Stack>
+      </Popover.Dropdown>
     </Popover>
   )
 }

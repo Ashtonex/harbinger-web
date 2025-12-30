@@ -1,6 +1,6 @@
 "use client"
 
-import { Container, Grid, Title, Text, Group, Paper, Stack, Button, SimpleGrid } from "@mantine/core";
+import { Container, Grid, Title, Text, Group, Paper, Stack, Button } from "@mantine/core";
 import { IconDownload } from "@tabler/icons-react"; 
 
 // --- COMPONENTS ---
@@ -39,8 +39,16 @@ export function DashboardView({
         {/* HEADER */}
         <Group justify="space-between" align="flex-end">
           <div>
-            <Title order={1} variant="gradient" gradient={{ from: 'blue', to: 'cyan', deg: 90 }}>
-              Dashboard
+            {/* FIXED: Gradient logic moved to inner Text component for Mantine v7 */}
+            <Title order={1}>
+              <Text 
+                span 
+                inherit 
+                variant="gradient" 
+                gradient={{ from: 'blue', to: 'cyan', deg: 90 }}
+              >
+                Dashboard
+              </Text>
             </Title>
             <Text c="dimmed" mt="xs">
               Welcome back. Here is a snapshot of your spiritual journey this week.
@@ -53,6 +61,7 @@ export function DashboardView({
 
         {/* RESUME ACTIVITY */}
         <Stack gap="sm">
+          {/* FIXED: ls="1px" moved to style */}
           <Text tt="uppercase" c="dimmed" fw={700} size="xs" style={{ letterSpacing: '1px' }}>
             Continue Watching
           </Text>
@@ -79,7 +88,8 @@ export function DashboardView({
               </Paper>
 
               {/* Activity & Finances */}
-              <Paper shadow="xs" radius="md" withBorder overflow="hidden">
+              {/* FIXED: Moved overflow="hidden" to style prop */}
+              <Paper shadow="xs" radius="md" withBorder style={{ overflow: "hidden" }}>
                 <div style={{ padding: '20px', borderBottom: '1px solid var(--mantine-color-default-border)' }}>
                   <Title order={3} size="h4">Activity & Finances</Title>
                   <Text size="sm" c="dimmed">Your engagement and contributions.</Text>
@@ -91,36 +101,36 @@ export function DashboardView({
                   </div>
                   
                   <div>
-                     <Group justify="space-between" mb="md">
-                        <Title order={4} size="h5">Recent Transactions</Title>
-                        <Button variant="subtle" size="xs">View all</Button>
-                     </Group>
-                     <TransactionHistory /> 
+                      <Group justify="space-between" mb="md">
+                         <Title order={4} size="h5">Recent Transactions</Title>
+                         <Button variant="subtle" size="xs">View all</Button>
+                      </Group>
+                      <TransactionHistory /> 
                   </div>
                 </Stack>
               </Paper>
 
               {/* Recommendations */}
               <Stack gap="sm">
-                 <Title order={3} size="h4">Recommended for You</Title>
-                 <Grid gutter="md">
-                    {suggestions?.items?.length > 0 ? (
-                      suggestions.items.map((item: any) => (
-                        <Grid.Col key={item.id} span={{ base: 12, md: 6 }}>
-                          <Paper p="md" withBorder radius="md" style={{ cursor: 'pointer' }}>
-                            <Text size="xs" c="blue" fw={700} tt="uppercase">Based on your history</Text>
-                            <Text fw={600} mt={4}>{item.title}</Text>
-                          </Paper>
-                        </Grid.Col>
-                      ))
-                    ) : (
-                      <Grid.Col span={12}>
-                        <Paper p="xl" withBorder style={{ borderStyle: 'dashed', textAlign: 'center' }}>
-                           <Text c="dimmed" fs="italic">Read more content to unlock personalized recommendations.</Text>
-                        </Paper>
-                      </Grid.Col>
-                    )}
-                 </Grid>
+                  <Title order={3} size="h4">Recommended for You</Title>
+                  <Grid gutter="md">
+                     {suggestions?.items?.length > 0 ? (
+                       suggestions.items.map((item: any) => (
+                         <Grid.Col key={item.id} span={{ base: 12, md: 6 }}>
+                           <Paper p="md" withBorder radius="md" style={{ cursor: 'pointer' }}>
+                             <Text size="xs" c="blue" fw={700} tt="uppercase">Based on your history</Text>
+                             <Text fw={600} mt={4}>{item.title}</Text>
+                           </Paper>
+                         </Grid.Col>
+                       ))
+                     ) : (
+                       <Grid.Col span={12}>
+                         <Paper p="xl" withBorder style={{ borderStyle: 'dashed', textAlign: 'center' }}>
+                            <Text c="dimmed" fs="italic">Read more content to unlock personalized recommendations.</Text>
+                         </Paper>
+                       </Grid.Col>
+                     )}
+                  </Grid>
               </Stack>
             </Stack>
           </Grid.Col>
@@ -132,19 +142,19 @@ export function DashboardView({
               <CompletenessWidget data={completeness} />
 
               <Paper p="lg" radius="md" withBorder bg="var(--mantine-color-gray-0)">
-                 <Text size="xs" fw={700} tt="uppercase" c="dimmed" mb="md">Spiritual Milestones</Text>
-                 <BadgeList badges={userBadges} />
+                  <Text size="xs" fw={700} tt="uppercase" c="dimmed" mb="md">Spiritual Milestones</Text>
+                  <BadgeList badges={userBadges} />
               </Paper>
 
               <Stack gap="xs">
-                 <Text size="xs" fw={700} tt="uppercase" c="dimmed">Upcoming Gathering</Text>
-                 {nextEvent ? (
-                    <EventCountdown event={nextEvent} />
-                 ) : (
-                    <Paper p="xl" withBorder style={{ borderStyle: 'dashed', textAlign: 'center' }}>
-                       <Text size="sm" c="dimmed">No upcoming events.</Text>
-                    </Paper>
-                 )}
+                  <Text size="xs" fw={700} tt="uppercase" c="dimmed">Upcoming Gathering</Text>
+                  {nextEvent ? (
+                     <EventCountdown event={nextEvent} />
+                  ) : (
+                     <Paper p="xl" withBorder style={{ borderStyle: 'dashed', textAlign: 'center' }}>
+                        <Text size="sm" c="dimmed">No upcoming events.</Text>
+                     </Paper>
+                  )}
               </Stack>
 
             </Stack>

@@ -2,17 +2,19 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/utils/supabase/client"
+// FIXED: Import 'supabase' directly
+import { supabase } from "@/utils/supabase/client"
 import { 
   Title, TextInput, Button, Group, Stack, Paper, Select, 
   Textarea, SimpleGrid, Avatar, FileButton, Text, Loader, Center 
 } from "@mantine/core"
 import { IconDeviceFloppy, IconUpload } from "@tabler/icons-react"
+// Note: If BackButton doesn't exist, you can replace it with a simple Link Button
 import { BackButton } from "@/components/ui/back-button"
 
 // Accept user and data as props (passed from the server)
 export function EditForm({ user, initialData }: { user: any, initialData: any }) {
-  const supabase = createClient()
+  // REMOVED: const supabase = createClient() -> We use the imported instance
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
